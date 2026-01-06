@@ -4,55 +4,78 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, ArrowRight } from "lucide-react";
 
-export default function SignInPage() {
+export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { signIn } = useAuth();
+  const { signUpEmailOnly } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await signIn(email, password);
-      router.push("/home");
+      await signUpEmailOnly(email, password);
+      router.push("/signup/complete");
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Invalid email or password";
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong";
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // TODO: Implement social login
-    alert(`${provider} login coming soon!`);
+  const handleSocialSignup = (provider: string) => {
+    // TODO: Implement social signup
+    alert(`${provider} signup coming soon!`);
   };
 
   return (
     <div
-      className="min-h-screen flex flex-col px-6 pt-16 pb-8"
+      className="min-h-screen flex flex-col px-6 pt-4 pb-8"
       style={{
         background: "linear-gradient(204deg, rgb(24, 24, 27) 0%, rgb(30, 30, 30) 50%, rgb(215, 99, 45) 100%)"
       }}
     >
+      {/* Back Button */}
+      <Link
+        href="/"
+        className="flex items-center text-white mb-8 hover:text-[#FF6B35] transition-colors w-fit"
+      >
+        <ArrowLeft size={24} />
+      </Link>
+
       {/* Logo Section */}
       <div className="text-center mb-10">
         <h1 className="text-[32px] font-bold text-white mb-1">SideBet</h1>
         <p className="text-[#757579] text-sm">Every Party Needs Stakes</p>
       </div>
 
-      {/* Sign In Form */}
+      {/* Sign Up Form */}
       <div className="flex-1">
-        <h2 className="text-white text-xl font-semibold mb-6">Sign In</h2>
+        <h2 className="text-white text-xl font-semibold mb-6">Sign Up</h2>
 
         {/* Error Message */}
         {error && (
@@ -93,23 +116,32 @@ export default function SignInPage() {
             </button>
           </div>
 
-          {/* Forgot Password Link */}
-          <div className="text-right">
-            <Link
-              href="/forgot-password"
-              className="text-[#FF6B35] text-sm hover:underline"
+          {/* Confirm Password Input */}
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="Confirm Password"
+              className="w-full px-4 py-3 bg-[rgba(24,24,27,0.4)] rounded-[6px] text-white placeholder:text-[#757579] focus:outline-none focus:shadow-[2px_2px_4px_0px_#ff6b35] transition-shadow pr-12"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#757579] hover:text-white transition-colors"
             >
-              Forgot Password?
-            </Link>
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
-          {/* Sign In Button */}
+          {/* Sign Up Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#FF6B35] text-white font-semibold rounded-[6px] hover:bg-[#e55f2f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#FF6B35] text-white font-semibold rounded-[6px] hover:bg-[#e55f2f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-6"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? "Creating account..." : "Sign Up"}
             {!loading && <ArrowRight size={18} />}
           </button>
         </form>
@@ -121,12 +153,12 @@ export default function SignInPage() {
           <div className="flex-1 h-px bg-[#757579]/30"></div>
         </div>
 
-        {/* Social Login Buttons */}
+        {/* Social Signup Buttons */}
         <div className="space-y-3">
           {/* Google Button */}
           <button
             type="button"
-            onClick={() => handleSocialLogin("Google")}
+            onClick={() => handleSocialSignup("Google")}
             className="w-full py-3 bg-white text-gray-800 font-medium rounded-[6px] hover:bg-gray-100 transition-colors flex items-center justify-center gap-3"
           >
             <svg width="20" height="20" viewBox="0 0 24 24">
@@ -141,7 +173,7 @@ export default function SignInPage() {
           {/* Apple Button */}
           <button
             type="button"
-            onClick={() => handleSocialLogin("Apple")}
+            onClick={() => handleSocialSignup("Apple")}
             className="w-full py-3 bg-[#18181B] text-white font-medium rounded-[6px] hover:bg-[#27272A] transition-colors flex items-center justify-center gap-3 border border-[#27272A]"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
@@ -164,12 +196,12 @@ export default function SignInPage() {
         </div>
       </div>
 
-      {/* Sign Up Link */}
+      {/* Sign In Link */}
       <div className="text-center mt-8">
         <p className="text-[#757579]">
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-[#FF6B35] font-semibold hover:underline">
-            Sign Up
+          Already have an account?{" "}
+          <Link href="/" className="text-[#FF6B35] font-semibold hover:underline">
+            Sign In
           </Link>
         </p>
       </div>
