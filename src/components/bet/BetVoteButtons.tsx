@@ -2,6 +2,7 @@
 
 type BetType = 'YES_NO' | 'OVER_UNDER';
 type Category = 'H2H' | 'GROUP';
+type BetStatus = 'PENDING' | 'OPEN' | 'WON' | 'LOST' | 'JUDGE';
 type VotePick = 'YES' | 'NO' | 'OVER' | 'UNDER';
 
 interface BetVoteButtonsProps {
@@ -10,9 +11,11 @@ interface BetVoteButtonsProps {
   yesPercentage: number;
   noPercentage: number;
   userPick?: VotePick;
+  status?: BetStatus;
   onVote?: (pick: VotePick) => void;
   disabled?: boolean;
   isJudgeMode?: boolean;
+  judgeSelection?: VotePick;
 }
 
 export function BetVoteButtons({
@@ -21,11 +24,12 @@ export function BetVoteButtons({
   yesPercentage,
   noPercentage,
   userPick,
+  status,
   onVote,
   disabled = false,
   isJudgeMode = false,
+  judgeSelection,
 }: BetVoteButtonsProps) {
-  const accentColor = category === 'H2H' ? 'bg-sb-purple' : 'bg-sb-orange';
   const leftOption = betType === 'YES_NO' ? 'NO' : 'UNDER';
   const rightOption = betType === 'YES_NO' ? 'YES' : 'OVER';
   const leftPick: VotePick = betType === 'YES_NO' ? 'NO' : 'UNDER';
@@ -33,6 +37,22 @@ export function BetVoteButtons({
 
   const isLeftSelected = userPick === leftPick;
   const isRightSelected = userPick === rightPick;
+
+  // For judge mode
+  const isLeftJudgeSelected = judgeSelection === leftPick;
+  const isRightJudgeSelected = judgeSelection === rightPick;
+
+  // Get the accent color based on category
+  const getAccentBg = () => {
+    return category === 'H2H' ? 'bg-sb-purple' : 'bg-sb-orange';
+  };
+
+  // Get selected button color based on status
+  const getSelectedBg = () => {
+    if (status === 'WON') return 'bg-[#22C55E]';
+    if (status === 'LOST') return 'bg-[#EF4444]';
+    return category === 'H2H' ? 'bg-sb-purple' : 'bg-sb-orange';
+  };
 
   const handleLeftClick = () => {
     if (!disabled && onVote) {
@@ -46,7 +66,7 @@ export function BetVoteButtons({
     }
   };
 
-  // Judge mode has simpler buttons without percentages
+  // Judge mode - buttons that can be clicked to select result
   if (isJudgeMode) {
     return (
       <div className="flex gap-3">
@@ -54,10 +74,13 @@ export function BetVoteButtons({
           onClick={handleLeftClick}
           disabled={disabled}
           className={`
-            flex-1 py-3 px-4 rounded-lg font-semibold text-sm
+            flex-1 py-2.5 px-4 rounded-md font-semibold text-sm
             transition-all duration-200
-            ${accentColor} text-white
-            hover:opacity-90
+            ${
+              isLeftJudgeSelected
+                ? `${getAccentBg()} text-white`
+                : 'bg-transparent border border-white text-white hover:bg-white/10'
+            }
             disabled:opacity-50 disabled:cursor-not-allowed
           `}
         >
@@ -67,10 +90,13 @@ export function BetVoteButtons({
           onClick={handleRightClick}
           disabled={disabled}
           className={`
-            flex-1 py-3 px-4 rounded-lg font-semibold text-sm
+            flex-1 py-2.5 px-4 rounded-md font-semibold text-sm
             transition-all duration-200
-            ${accentColor} text-white
-            hover:opacity-90
+            ${
+              isRightJudgeSelected
+                ? `${getAccentBg()} text-white`
+                : 'bg-transparent border border-white text-white hover:bg-white/10'
+            }
             disabled:opacity-50 disabled:cursor-not-allowed
           `}
         >
@@ -81,54 +107,39 @@ export function BetVoteButtons({
   }
 
   return (
-    <div className="space-y-2">
-      {/* Vote buttons */}
-      <div className="flex gap-3">
-        <button
-          onClick={handleLeftClick}
-          disabled={disabled}
-          className={`
-            flex-1 py-3 px-4 rounded-lg font-semibold text-sm
-            transition-all duration-200
-            ${
-              isLeftSelected
-                ? `${accentColor} text-white`
-                : 'bg-transparent border border-white/30 text-white hover:border-white/50'
-            }
-            disabled:opacity-50 disabled:cursor-not-allowed
-          `}
-        >
-          {leftOption} {noPercentage}%
-        </button>
-        <button
-          onClick={handleRightClick}
-          disabled={disabled}
-          className={`
-            flex-1 py-3 px-4 rounded-lg font-semibold text-sm
-            transition-all duration-200
-            ${
-              isRightSelected
-                ? `${accentColor} text-white`
-                : 'bg-transparent border border-white/30 text-white hover:border-white/50'
-            }
-            disabled:opacity-50 disabled:cursor-not-allowed
-          `}
-        >
-          {rightOption} {yesPercentage}%
-        </button>
-      </div>
-
-      {/* Progress bar showing vote distribution */}
-      <div className="h-1.5 bg-sb-card-hover rounded-full overflow-hidden flex">
-        <div
-          className={`${category === 'H2H' ? 'bg-sb-purple/60' : 'bg-sb-orange/60'} transition-all duration-300`}
-          style={{ width: `${noPercentage}%` }}
-        />
-        <div
-          className={`${category === 'H2H' ? 'bg-sb-purple' : 'bg-sb-orange'} transition-all duration-300`}
-          style={{ width: `${yesPercentage}%` }}
-        />
-      </div>
+    <div className="flex gap-3">
+      <button
+        onClick={handleLeftClick}
+        disabled={disabled}
+        className={`
+          flex-1 py-2.5 px-4 rounded-md font-semibold text-sm
+          transition-all duration-200
+          ${
+            isLeftSelected
+              ? `${getSelectedBg()} text-white`
+              : 'bg-[#18181B] border border-white text-white hover:bg-white/10'
+          }
+          disabled:opacity-50 disabled:cursor-not-allowed
+        `}
+      >
+        {leftOption} {noPercentage}%
+      </button>
+      <button
+        onClick={handleRightClick}
+        disabled={disabled}
+        className={`
+          flex-1 py-2.5 px-4 rounded-md font-semibold text-sm
+          transition-all duration-200
+          ${
+            isRightSelected
+              ? `${getSelectedBg()} text-white`
+              : 'bg-[#18181B] border border-white text-white hover:bg-white/10'
+          }
+          disabled:opacity-50 disabled:cursor-not-allowed
+        `}
+      >
+        {rightOption} {yesPercentage}%
+      </button>
     </div>
   );
 }

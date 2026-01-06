@@ -111,7 +111,7 @@ export function BetCard({
       <div
         className={`
           transition-all duration-300 ease-in-out
-          ${isExpanded ? 'scale-[1.02]' : 'scale-100'}
+          ${isExpanded ? 'scale-[1.01]' : 'scale-100'}
         `}
       >
         {isExpanded ? (
@@ -121,6 +121,7 @@ export function BetCard({
             title={bet.title}
             description={bet.description}
             sourceLabel={sourceLabel}
+            creatorName={bet.creatorName}
             wager={bet.wager}
             totalPot={bet.totalPot}
             line={bet.line}

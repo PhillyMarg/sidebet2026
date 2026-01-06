@@ -9,17 +9,17 @@ export function BetStatusBadge({ status, closingDate }: BetStatusBadgeProps) {
   const getStatusStyles = () => {
     switch (status) {
       case 'PENDING':
-        return 'text-yellow-500';
+        return 'text-[#EAB308]'; // Yellow
       case 'OPEN':
-        return 'text-sb-muted';
+        return 'text-[#9CA3AF]'; // Muted gray
       case 'WON':
-        return 'text-green-500';
+        return 'text-[#22C55E]'; // Green
       case 'LOST':
-        return 'text-red-500';
+        return 'text-[#EF4444]'; // Red
       case 'JUDGE':
-        return 'text-sb-orange';
+        return 'text-sb-orange'; // Orange
       default:
-        return 'text-sb-muted';
+        return 'text-[#9CA3AF]';
     }
   };
 

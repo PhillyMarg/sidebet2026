@@ -15,7 +15,6 @@ interface ConfirmResultModalProps {
 
 export function ConfirmResultModal({
   isOpen,
-  betType,
   category,
   selectedResult,
   onConfirm,
@@ -23,23 +22,10 @@ export function ConfirmResultModal({
 }: ConfirmResultModalProps) {
   if (!isOpen) return null;
 
-  const borderColor = category === 'H2H' ? 'border-sb-purple' : 'border-sb-orange';
+  const accentColor = category === 'H2H' ? 'text-sb-purple' : 'text-sb-orange';
+  const topBorderColor = category === 'H2H' ? 'border-t-sb-purple' : 'border-t-sb-orange';
   const confirmBgColor = category === 'H2H' ? 'bg-sb-purple' : 'bg-sb-orange';
-
-  const resultLabel = (() => {
-    switch (selectedResult) {
-      case 'YES':
-        return 'YES';
-      case 'NO':
-        return 'NO';
-      case 'OVER':
-        return 'OVER';
-      case 'UNDER':
-        return 'UNDER';
-      default:
-        return selectedResult;
-    }
-  })();
+  const cancelBorderColor = category === 'H2H' ? 'border-sb-purple' : 'border-sb-orange';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -53,7 +39,8 @@ export function ConfirmResultModal({
       <div
         className={`
           relative w-full max-w-sm
-          bg-sb-card border ${borderColor}
+          bg-[#18181B]
+          border-t-4 ${topBorderColor}
           rounded-xl p-6
           space-y-4
         `}
@@ -64,12 +51,12 @@ export function ConfirmResultModal({
         </h2>
 
         {/* Message */}
-        <p className="text-white text-sm text-center">
-          You&apos;re about to select <span className="font-bold">{resultLabel}</span> as the winning answer.
+        <p className="text-[#9CA3AF] text-sm text-center">
+          You&apos;re about to select <span className={`font-bold ${accentColor}`}>{selectedResult}</span> as the winning answer.
         </p>
 
         {/* Warning */}
-        <p className="text-sb-muted text-xs text-center italic">
+        <p className="text-[#9CA3AF] text-xs text-center italic">
           This cannot be undone.
         </p>
 
@@ -78,9 +65,9 @@ export function ConfirmResultModal({
           <button
             onClick={onCancel}
             className={`
-              flex-1 py-3 px-4 rounded-lg
+              flex-1 py-3 px-4 rounded-md
               font-semibold text-sm
-              bg-transparent border ${borderColor} text-white
+              bg-transparent border ${cancelBorderColor} text-white
               hover:bg-sb-card-hover transition-colors
             `}
           >
@@ -89,7 +76,7 @@ export function ConfirmResultModal({
           <button
             onClick={onConfirm}
             className={`
-              flex-1 py-3 px-4 rounded-lg
+              flex-1 py-3 px-4 rounded-md
               font-semibold text-sm
               ${confirmBgColor} text-white
               hover:opacity-90 transition-opacity
