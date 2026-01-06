@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { BetStatusBadge } from './BetStatusBadge';
 import { BetVoteButtons } from './BetVoteButtons';
 
@@ -14,6 +15,7 @@ interface BetCardExpandedProps {
   title: string;
   description?: string;
   sourceLabel: string;
+  creatorName?: string;
   wager: number;
   totalPot: number;
   line?: number;
@@ -35,6 +37,7 @@ export function BetCardExpanded({
   title,
   description,
   sourceLabel,
+  creatorName,
   wager,
   totalPot,
   line,
@@ -49,107 +52,133 @@ export function BetCardExpanded({
   onVote,
   onJudge,
 }: BetCardExpandedProps) {
-  const borderColor = category === 'H2H' ? 'border-sb-purple' : 'border-sb-orange';
+  const [judgeSelection, setJudgeSelection] = useState<VotePick | undefined>();
+
+  // Determine left border color based on status and category
+  const getLeftBorderColor = () => {
+    if (status === 'WON') return 'border-l-[#22C55E]';
+    if (status === 'LOST') return 'border-l-[#EF4444]';
+    return category === 'H2H' ? 'border-l-sb-purple' : 'border-l-sb-orange';
+  };
+
+  // Top glow color for expanded state
+  const getTopGlow = () => {
+    if (status === 'WON') return 'shadow-[0_-2px_10px_rgba(34,197,94,0.3)]';
+    if (status === 'LOST') return 'shadow-[0_-2px_10px_rgba(239,68,68,0.3)]';
+    return category === 'H2H'
+      ? 'shadow-[0_-2px_10px_rgba(123,44,191,0.3)]'
+      : 'shadow-[0_-2px_10px_rgba(255,107,53,0.3)]';
+  };
+
   const labelColor = category === 'H2H' ? 'text-sb-purple' : 'text-sb-orange';
-  const potColor = category === 'H2H' ? 'text-sb-purple' : 'text-sb-orange';
+  const accentColor = category === 'H2H' ? 'text-sb-purple' : 'text-sb-orange';
 
   const formatCurrency = (amount: number) => {
     return `$${amount.toFixed(2)}`;
   };
 
   const betTypeLabel = type === 'YES_NO' ? 'Yes/No' : 'Over/Under';
-  const userPickLabel = userPick ? (type === 'YES_NO' ? userPick : userPick) : null;
 
   const canVote = status === 'OPEN' && !userPick;
   const isJudgeMode = status === 'JUDGE';
   const showResult = status === 'WON' || status === 'LOST';
 
+  const handleJudgeVote = (pick: VotePick) => {
+    setJudgeSelection(pick);
+    onJudge?.(pick);
+  };
+
+  // Get pick color based on status
+  const getPickColor = () => {
+    if (status === 'WON') return 'text-[#22C55E]';
+    if (status === 'LOST') return 'text-[#EF4444]';
+    return accentColor;
+  };
+
   return (
     <div
       className={`
-        bg-sb-card/90 backdrop-blur-sm
-        border ${borderColor}
+        bg-[#18181B]
+        border-l-[3px] ${getLeftBorderColor()}
+        ${getTopGlow()}
         rounded-lg overflow-hidden
       `}
     >
       {/* Header - clickable to collapse */}
       <button
         onClick={onCollapse}
-        className="w-full text-left p-3 hover:bg-sb-card-hover/50 transition-colors"
+        className="w-full text-left py-3 px-4 hover:bg-sb-card-hover/50 transition-colors"
       >
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1 min-w-0">
-            {/* Top row: Source Label, Date/Status */}
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`text-xs font-medium ${labelColor} truncate`}>
-                {sourceLabel}
-              </span>
-              <BetStatusBadge status={status} closingDate={closingDate} />
-            </div>
-
-            {/* Bet Title */}
-            <h3 className="text-white font-bold text-sm">
-              {title}
-            </h3>
-          </div>
-
-          {/* Collapse chevron */}
-          <div className="flex items-center">
-            <svg
-              className="w-5 h-5 text-sb-muted"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 15l7-7 7 7"
-              />
-            </svg>
-          </div>
+        {/* Row 1: Source Label (left), Date/Status (right) */}
+        <div className="flex items-center justify-between mb-1">
+          <span className={`text-xs font-semibold ${labelColor}`}>
+            {sourceLabel}
+          </span>
+          <BetStatusBadge status={status} closingDate={closingDate} />
         </div>
+
+        {/* Row 2: Bet Title */}
+        <h3 className="text-white font-bold text-base">
+          {title}
+        </h3>
       </button>
 
       {/* Expanded content */}
-      <div className="px-3 pb-3 space-y-3">
+      <div className="px-4 pb-4 space-y-2">
+        {/* Creator */}
+        {creatorName && (
+          <p className="text-xs">
+            <span className="text-[#9CA3AF]">Creator: </span>
+            <span className="text-white">{creatorName}</span>
+          </p>
+        )}
+
         {/* Description */}
         {description && (
-          <p className="text-sb-muted text-xs">
+          <p className="text-[#9CA3AF] text-sm italic">
             {description}
           </p>
         )}
 
-        {/* Bet details row */}
-        <div className="flex items-center gap-4 text-xs">
-          <span className="text-sb-muted">{betTypeLabel}</span>
-          {type === 'OVER_UNDER' && line !== undefined && (
-            <span className="text-sb-muted">Line: {line}</span>
-          )}
-        </div>
+        {/* Bet Type */}
+        <p className="text-[#9CA3AF] text-xs">
+          {betTypeLabel}
+        </p>
 
-        {/* Wager and Pot */}
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-4">
-            <span className="text-white">
-              Wager: <span className="font-semibold">{formatCurrency(wager)}</span>
-            </span>
-            <span className={potColor}>
-              Total Pot: <span className="font-bold">{formatCurrency(totalPot)}</span>
-            </span>
-          </div>
-          {category === 'GROUP' && playerCount !== undefined && (
-            <span className="text-sb-muted text-xs">
-              👤 {playerCount} Players
-            </span>
-          )}
-        </div>
+        {/* Line for Over/Under */}
+        {type === 'OVER_UNDER' && line !== undefined && (
+          <p className={`text-sm ${accentColor}`}>
+            Line: {line}
+          </p>
+        )}
+
+        {/* Spacer */}
+        <div className="h-1" />
+
+        {/* Wager */}
+        <p className="text-white text-sm">
+          Wager: {formatCurrency(wager)}
+        </p>
+
+        {/* Total Pot */}
+        <p className={`text-sm font-semibold ${accentColor}`}>
+          Total Pot: {formatCurrency(totalPot)}
+        </p>
+
+        {/* Player Count */}
+        {category === 'GROUP' && playerCount !== undefined && (
+          <p className="text-white text-sm">
+            👤 {playerCount} Players
+          </p>
+        )}
+
+        {/* Spacer */}
+        <div className="h-1" />
 
         {/* Judge Mode */}
         {isJudgeMode && (
           <div className="space-y-3 pt-2">
-            <p className="text-white text-sm text-center font-medium">
+            <p className="text-white text-sm text-center">
               What is the correct answer?
             </p>
             <BetVoteButtons
@@ -157,8 +186,9 @@ export function BetCardExpanded({
               category={category}
               yesPercentage={yesPercentage}
               noPercentage={noPercentage}
-              onVote={(pick) => onJudge?.(pick)}
+              onVote={handleJudgeVote}
               isJudgeMode={true}
+              judgeSelection={judgeSelection}
             />
           </div>
         )}
@@ -171,42 +201,69 @@ export function BetCardExpanded({
             yesPercentage={yesPercentage}
             noPercentage={noPercentage}
             userPick={userPick}
+            status={status}
             onVote={onVote}
             disabled={!canVote}
           />
         )}
 
+        {/* Show buttons in WON/LOST state too */}
+        {showResult && (
+          <BetVoteButtons
+            betType={type}
+            category={category}
+            yesPercentage={yesPercentage}
+            noPercentage={noPercentage}
+            userPick={userPick}
+            status={status}
+            disabled={true}
+          />
+        )}
+
+        {/* Spacer */}
+        <div className="h-1" />
+
         {/* User's pick and potential payout */}
         {userPick && (status === 'OPEN' || showResult) && (
-          <div className="flex items-center justify-between text-xs pt-1 border-t border-sb-border">
-            <span className="text-sb-muted">
-              Your Pick: <span className="text-white font-semibold">{userPickLabel}</span>
+          <div className="flex items-center justify-between text-xs pt-2">
+            <span className="text-[#9CA3AF]">
+              Your Pick: <span className={`font-semibold ${getPickColor()}`}>{userPick}</span>
             </span>
-            {potentialPayout !== undefined && (
-              <span className="text-sb-muted">
-                Potential Payout: <span className={`font-semibold ${potColor}`}>{formatCurrency(potentialPayout)}</span>
+            {status !== 'LOST' && potentialPayout !== undefined && (
+              <span className="text-[#9CA3AF]">
+                {status === 'WON' ? 'Payout: ' : 'Potential Payout: '}
+                <span className="font-semibold text-white">{formatCurrency(potentialPayout)}</span>
               </span>
             )}
           </div>
         )}
 
-        {/* Won/Lost result display */}
-        {showResult && (
-          <div className={`text-center py-2 rounded-lg ${status === 'WON' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-            <span className={`font-bold ${status === 'WON' ? 'text-green-500' : 'text-red-500'}`}>
-              {status === 'WON' ? 'YOU WON!' : 'YOU LOST'}
-            </span>
-          </div>
-        )}
-
         {/* Pending state message */}
         {status === 'PENDING' && (
-          <div className="text-center py-2 rounded-lg bg-yellow-500/20">
-            <span className="text-yellow-500 text-sm">
+          <div className="text-center py-2 rounded-lg bg-[#EAB308]/20">
+            <span className="text-[#EAB308] text-sm">
               Waiting for opponent to accept
             </span>
           </div>
         )}
+
+        {/* Collapse chevron at bottom right */}
+        <div className="flex justify-end pt-2">
+          <svg
+            className="w-5 h-5 text-white cursor-pointer"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            onClick={onCollapse}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M5 15l7-7 7 7"
+            />
+          </svg>
+        </div>
       </div>
     </div>
   );
