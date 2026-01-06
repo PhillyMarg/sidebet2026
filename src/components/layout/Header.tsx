@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { NotificationBadge, NotificationsPanel } from "@/components/notifications";
 import { sampleNotifications, Notification } from "@/lib/data/sampleNotifications";
@@ -12,32 +13,14 @@ interface HeaderProps {
 
 export function Header({ showNotifications = true }: HeaderProps) {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);
-  const [showPanel, setShowPanel] = useState(false);
+  const router = useRouter();
 
   const displayName = user?.firstName && user?.lastName
     ? `${user.firstName} ${user.lastName}`
     : user?.firstName || "Guest";
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const handleTogglePanel = () => {
-    setShowPanel(!showPanel);
-  };
-
-  const handleClosePanel = () => {
-    setShowPanel(false);
-  };
-
-  const handleClearAll = () => {
-    setNotifications([]);
-    setShowPanel(false);
-  };
-
-  const handleMarkRead = (id: string) => {
-    setNotifications(prev =>
-      prev.map(n => (n.id === id ? { ...n, read: true } : n))
-    );
+  const handleUserNameClick = () => {
+    router.push("/account");
   };
 
   return (
@@ -57,9 +40,12 @@ export function Header({ showNotifications = true }: HeaderProps) {
 
         {/* Right: User Name + Bell */}
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-light italic text-white opacity-90">
+          <button
+            onClick={handleUserNameClick}
+            className="text-[10px] font-light italic text-white opacity-90 hover:text-sb-orange hover:opacity-100 transition-colors"
+          >
             {displayName}
-          </span>
+          </button>
           {showNotifications && (
             <div className="relative">
               <button
