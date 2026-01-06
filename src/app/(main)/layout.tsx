@@ -42,11 +42,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <div className="min-h-screen bg-sb-black">
+    <div
+      className="min-h-screen"
+      style={{
+        background: "linear-gradient(204deg, rgb(24, 24, 27) 0%, rgb(30, 30, 30) 50%, rgb(215, 99, 45) 100%)",
+      }}
+    >
       <Header />
-      
+
       {/* Main content with padding for header and nav */}
-      <main className="pt-14 pb-20 min-h-screen">
+      <main className="pt-14 pb-24 min-h-screen">
         {children}
       </main>
 
