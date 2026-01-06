@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { NotificationBadge, NotificationsPanel } from "@/components/notifications";
+import { sampleNotifications, Notification } from "@/lib/data/sampleNotifications";
 
 interface HeaderProps {
   showNotifications?: boolean;
@@ -44,9 +47,23 @@ export function Header({ showNotifications = true }: HeaderProps) {
             {displayName}
           </button>
           {showNotifications && (
-            <button className="p-1 text-white hover:text-sb-orange transition-colors">
-              <Bell size={24} />
-            </button>
+            <div className="relative">
+              <button
+                onClick={handleTogglePanel}
+                className="p-1 text-white hover:text-sb-orange transition-colors"
+              >
+                <Bell size={24} />
+                <NotificationBadge count={unreadCount} />
+              </button>
+              {showPanel && (
+                <NotificationsPanel
+                  notifications={notifications}
+                  onClose={handleClosePanel}
+                  onClearAll={handleClearAll}
+                  onMarkRead={handleMarkRead}
+                />
+              )}
+            </div>
           )}
         </div>
       </div>
