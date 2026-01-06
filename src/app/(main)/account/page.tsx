@@ -15,10 +15,36 @@ import { sampleAccount } from "@/lib/data/sampleAccount";
 
 export default function AccountPage() {
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { signOut, user: authUser } = useAuth();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const { user, stats } = sampleAccount;
+  // Use real user data if available, otherwise fall back to sample data
+  const userData = authUser ? {
+    name: authUser.displayName || `${authUser.firstName} ${authUser.lastName}`,
+    username: authUser.email?.split("@")[0] || "user",
+    initials: `${authUser.firstName?.[0] || ""}${authUser.lastName?.[0] || ""}`.toUpperCase() || "??",
+    memberSince: authUser.createdAt ? new Date(authUser.createdAt.toDate()).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "2025",
+  } : sampleAccount.user;
+
+  const userStats = authUser?.stats ? {
+    overallRecord: {
+      wins: authUser.stats.wins,
+      losses: authUser.stats.losses,
+      ties: authUser.stats.ties,
+    },
+    winRate: authUser.stats.wins + authUser.stats.losses > 0
+      ? Math.round((authUser.stats.wins / (authUser.stats.wins + authUser.stats.losses)) * 100)
+      : 0,
+    totalWinnings: authUser.stats.totalWinnings,
+    totalLosses: authUser.stats.totalLosses,
+    h2hRecord: {
+      wins: authUser.stats.h2hWins,
+      losses: authUser.stats.h2hLosses,
+    },
+    totalBets: authUser.stats.totalBets,
+  } : sampleAccount.stats;
+
+  const { user, stats } = { user: userData, stats: userStats };
 
   const handleBack = () => {
     router.back();

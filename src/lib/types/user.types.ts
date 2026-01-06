@@ -1,5 +1,16 @@
 import { Timestamp } from "firebase/firestore";
 
+export interface UserStats {
+  wins: number;
+  losses: number;
+  ties: number;
+  totalBets: number;
+  totalWinnings: number;
+  totalLosses: number;
+  h2hWins: number;
+  h2hLosses: number;
+}
+
 export interface User {
   uid: string;
   email: string;
@@ -8,8 +19,10 @@ export interface User {
   displayName: string;
   venmoUsername?: string;
   photoURL?: string;
+  phoneNumber?: string;
   createdAt: Timestamp;
   lastActive: Timestamp;
+  stats?: UserStats;
 }
 
 export interface UserFormData {

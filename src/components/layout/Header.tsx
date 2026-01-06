@@ -14,13 +14,36 @@ interface HeaderProps {
 export function Header({ showNotifications = true }: HeaderProps) {
   const { user } = useAuth();
   const router = useRouter();
+  const [showPanel, setShowPanel] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);
 
   const displayName = user?.firstName && user?.lastName
     ? `${user.firstName} ${user.lastName}`
     : user?.firstName || "Guest";
 
+  const unreadCount = notifications.filter(n => !n.read).length;
+
   const handleUserNameClick = () => {
     router.push("/account");
+  };
+
+  const handleTogglePanel = () => {
+    setShowPanel(!showPanel);
+  };
+
+  const handleClosePanel = () => {
+    setShowPanel(false);
+  };
+
+  const handleClearAll = () => {
+    setNotifications([]);
+    setShowPanel(false);
+  };
+
+  const handleMarkRead = (id: string) => {
+    setNotifications(prev =>
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
   };
 
   return (

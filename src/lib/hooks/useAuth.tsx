@@ -8,12 +8,13 @@ import {
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
   signInWithPhoneNumber,
+  signInWithPopup,
   RecaptchaVerifier,
   ConfirmationResult,
   User as FirebaseUser,
 } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase/client";
+import { auth, db, googleProvider } from "@/lib/firebase/client";
 import { User, UserFormData } from "@/lib/types";
 
 interface ProfileUpdateData {
@@ -27,6 +28,7 @@ interface AuthContextType {
   firebaseUser: FirebaseUser | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signUp: (data: UserFormData) => Promise<void>;
   signUpEmailOnly: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -71,6 +73,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     await signInWithEmailAndPassword(auth, email, password);
+  };
+
+  const signInWithGoogle = async () => {
+    const result = await signInWithPopup(auth, googleProvider);
+    const fbUser = result.user;
+
+    // Check if user exists in Firestore, if not create profile
+    const userDoc = await getDoc(doc(db, "users", fbUser.uid));
+
+    if (!userDoc.exists()) {
+      // Parse display name into first/last name
+      const displayName = fbUser.displayName || "";
+      const nameParts = displayName.split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
+
+      await setDoc(doc(db, "users", fbUser.uid), {
+        email: fbUser.email || "",
+        firstName,
+        lastName,
+        displayName,
+        photoURL: fbUser.photoURL || null,
+        phoneNumber: fbUser.phoneNumber || null,
+        venmoUsername: null,
+        createdAt: serverTimestamp(),
+        lastActive: serverTimestamp(),
+        stats: {
+          wins: 0,
+          losses: 0,
+          ties: 0,
+          totalBets: 0,
+          totalWinnings: 0,
+          totalLosses: 0,
+          h2hWins: 0,
+          h2hLosses: 0,
+        },
+      });
+    }
   };
 
   const signUp = async (data: UserFormData) => {
@@ -198,6 +238,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         firebaseUser,
         loading,
         signIn,
+        signInWithGoogle,
         signUp,
         signUpEmailOnly,
         signOut,

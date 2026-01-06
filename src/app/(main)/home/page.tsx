@@ -3,13 +3,16 @@
 import { useState, useMemo } from "react";
 import { FilterPills } from "@/components/ui/FilterPills";
 import { SearchBar } from "@/components/ui/SearchBar";
-import { BetCard } from "@/components/bet/BetCard";
-import { sampleBets, SampleBetData } from "@/lib/data/sampleBets";
+import { BetCard, BetData } from "@/components/bet/BetCard";
+import { useBets, useUserGroups } from "@/lib/hooks/useBets";
+import { sampleBets } from "@/lib/data/sampleBets";
+import { voteBet, judgeBet } from "@/lib/firebase/services/bets";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 type FilterType = "ALL" | "VOTE NOW" | "MY BETS" | "RESULTS" | "URGENT" | "H2H";
 
 // Filter bets based on selected filter
-function filterBets(bets: SampleBetData[], filter: FilterType): SampleBetData[] {
+function filterBets(bets: BetData[], filter: FilterType): BetData[] {
   switch (filter) {
     case 'ALL':
       return bets;
@@ -21,8 +24,8 @@ function filterBets(bets: SampleBetData[], filter: FilterType): SampleBetData[] 
       return bets.filter(b => b.status === 'WON' || b.status === 'LOST');
     case 'URGENT':
       return bets.filter(b => {
-        if (!b.closingTime) return false;
-        const closing = new Date(b.closingTime);
+        if (!b.closingDate) return false;
+        const closing = new Date(b.closingDate);
         const now = new Date();
         const hoursUntilClose = (closing.getTime() - now.getTime()) / (1000 * 60 * 60);
         return hoursUntilClose <= 24 && hoursUntilClose > 0 && b.status === 'OPEN';
@@ -35,7 +38,7 @@ function filterBets(bets: SampleBetData[], filter: FilterType): SampleBetData[] 
 }
 
 // Search bets by title (case-insensitive)
-function searchBets(bets: SampleBetData[], query: string): SampleBetData[] {
+function searchBets(bets: BetData[], query: string): BetData[] {
   if (!query.trim()) return bets;
   const lowerQuery = query.toLowerCase();
   return bets.filter(b => b.title.toLowerCase().includes(lowerQuery));
@@ -46,11 +49,18 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
 
+  const { user } = useAuth();
+  const { groupIds } = useUserGroups();
+  const { bets: firestoreBets, loading } = useBets({ groupIds });
+
+  // Use Firestore bets if available, otherwise fall back to sample data
+  const betsSource: BetData[] = firestoreBets.length > 0 ? firestoreBets : (sampleBets as unknown as BetData[]);
+
   // Filter and search bets
   const filteredBets = useMemo(() => {
-    const filtered = filterBets(sampleBets, selectedFilter);
+    const filtered = filterBets(betsSource, selectedFilter);
     return searchBets(filtered, searchQuery);
-  }, [selectedFilter, searchQuery]);
+  }, [betsSource, selectedFilter, searchQuery]);
 
   // Handle filter change
   const handleFilterChange = (filter: FilterType) => {
@@ -69,14 +79,35 @@ export default function HomePage() {
     setExpandedCardId(prev => prev === cardId ? null : cardId);
   };
 
-  // Handle vote action (placeholder for now)
-  const handleVote = (betId: string, pick: 'YES' | 'NO' | 'OVER' | 'UNDER') => {
-    console.log('[HomePage] Vote placed:', { betId, pick });
+  // Handle vote action
+  const handleVote = async (betId: string, pick: 'YES' | 'NO' | 'OVER' | 'UNDER') => {
+    if (!user) {
+      console.error('[HomePage] Cannot vote: user not logged in');
+      return;
+    }
+
+    try {
+      // Find the bet to get the wager amount
+      const bet = betsSource.find(b => b.id === betId);
+      const amount = bet?.wager || 0;
+
+      await voteBet(betId, user.uid, pick, amount);
+      console.log('[HomePage] Vote placed successfully:', { betId, pick });
+    } catch (error) {
+      console.error('[HomePage] Failed to place vote:', error);
+    }
   };
 
-  // Handle judge action (placeholder for now)
-  const handleJudge = (betId: string, result: 'YES' | 'NO' | 'OVER' | 'UNDER') => {
-    console.log('[HomePage] Judge result:', { betId, result });
+  // Handle judge action
+  const handleJudge = async (betId: string, result: 'YES' | 'NO' | 'OVER' | 'UNDER') => {
+    try {
+      // Map UI result to bet result type
+      const betResult = result.toLowerCase() as 'yes' | 'no' | 'over' | 'under';
+      await judgeBet(betId, betResult);
+      console.log('[HomePage] Judge result submitted:', { betId, result });
+    } catch (error) {
+      console.error('[HomePage] Failed to submit judge result:', error);
+    }
   };
 
   return (
