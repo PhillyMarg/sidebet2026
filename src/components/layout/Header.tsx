@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
 
 interface HeaderProps {
@@ -9,10 +10,15 @@ interface HeaderProps {
 
 export function Header({ showNotifications = true }: HeaderProps) {
   const { user } = useAuth();
+  const router = useRouter();
 
   const displayName = user?.firstName && user?.lastName
     ? `${user.firstName} ${user.lastName}`
     : user?.firstName || "Guest";
+
+  const handleUserNameClick = () => {
+    router.push("/account");
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 safe-top">
@@ -31,9 +37,12 @@ export function Header({ showNotifications = true }: HeaderProps) {
 
         {/* Right: User Name + Bell */}
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-light italic text-white opacity-90">
+          <button
+            onClick={handleUserNameClick}
+            className="text-[10px] font-light italic text-white opacity-90 hover:text-sb-orange hover:opacity-100 transition-colors"
+          >
             {displayName}
-          </span>
+          </button>
           {showNotifications && (
             <button className="p-1 text-white hover:text-sb-orange transition-colors">
               <Bell size={24} />
