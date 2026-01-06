@@ -35,11 +35,12 @@ export function FAB({ onCreateBet, onCreateTournament }: FABProps) {
         />
       )}
 
-      {/* FAB Container - positioned to sit in the bottom nav cutout */}
-      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 safe-bottom">
+      {/* FAB Container - positioned to float above the bottom nav */}
+      {/* Nav is 80px, FAB outer is 82px, so FAB should sit with bottom ~20px into nav */}
+      <div className="fixed bottom-[52px] left-1/2 -translate-x-1/2 z-50">
         {/* Options */}
         {isOpen && (
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center">
+          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center">
             {/* Create Tournament */}
             <button
               onClick={handleCreateTournament}
@@ -64,29 +65,53 @@ export function FAB({ onCreateBet, onCreateTournament }: FABProps) {
           </div>
         )}
 
-        {/* Main FAB Button - 64px diameter with orange gradient */}
+        {/* Main FAB Button with gradient ring */}
+        {/* Outer ring: 82px diameter with gradient border (orange to cream) */}
+        {/* Inner circle: 64px diameter with solid gradient */}
         <button
           onClick={handleToggle}
-          className={`
-            w-16 h-16 rounded-full flex items-center justify-center
-            transition-all duration-200
-            ${
-              isOpen
-                ? "bg-sb-card border border-sb-border rotate-45"
-                : "bg-gradient-to-br from-sb-orange to-[#D9632D] hover:from-orange-500 hover:to-orange-700"
-            }
-          `}
+          className="relative flex items-center justify-center"
           style={{
-            boxShadow: isOpen
-              ? "none"
-              : "0 4px 20px rgba(255, 107, 53, 0.5), 0 0 30px rgba(255, 107, 53, 0.3)",
+            width: "82px",
+            height: "82px",
           }}
         >
-          {isOpen ? (
-            <X size={28} className="text-white -rotate-45" />
-          ) : (
-            <Plus size={32} className="text-white" strokeWidth={2.5} />
-          )}
+          {/* Outer gradient ring - 82px */}
+          <div
+            className={`absolute inset-0 rounded-full transition-opacity duration-200 ${
+              isOpen ? "opacity-0" : "opacity-100"
+            }`}
+            style={{
+              background: "linear-gradient(135deg, #FF6B35 0%, #D4A574 50%, #C9A87C 100%)",
+              boxShadow: "0 4px 20px rgba(255, 107, 53, 0.5), 0 0 30px rgba(255, 107, 53, 0.3)",
+            }}
+          />
+
+          {/* Inner circle - 64px */}
+          <div
+            className={`
+              relative w-16 h-16 rounded-full flex items-center justify-center
+              transition-all duration-200
+              ${
+                isOpen
+                  ? "bg-sb-card border border-sb-border"
+                  : ""
+              }
+            `}
+            style={
+              !isOpen
+                ? {
+                    background: "linear-gradient(135deg, #FF6B35 0%, #D9632D 100%)",
+                  }
+                : undefined
+            }
+          >
+            {isOpen ? (
+              <X size={28} className="text-white" />
+            ) : (
+              <Plus size={32} className="text-white" strokeWidth={2.5} />
+            )}
+          </div>
         </button>
       </div>
     </>
