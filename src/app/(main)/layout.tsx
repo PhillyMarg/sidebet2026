@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { Header, BottomNav, FAB } from "@/components/layout";
+import { CreateBetWizard, CreateBetState } from "@/components/bet/CreateBetWizard";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -31,14 +32,22 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   const handleCreateBet = () => {
     setShowCreateBet(true);
-    // TODO: Open CreateBetWizard modal
-    console.log("Open Create Bet Wizard");
   };
 
   const handleCreateTournament = () => {
     setShowCreateTournament(true);
     // TODO: Open CreateTournamentWizard modal
     console.log("Open Create Tournament Wizard");
+  };
+
+  const handleCloseBetWizard = () => {
+    setShowCreateBet(false);
+  };
+
+  const handleSubmitBet = (data: CreateBetState) => {
+    // TODO: Submit bet to Firebase
+    console.log("Bet submitted:", data);
+    setShowCreateBet(false);
   };
 
   return (
@@ -58,7 +67,13 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <FAB onCreateBet={handleCreateBet} onCreateTournament={handleCreateTournament} />
       <BottomNav />
 
-      {/* TODO: Add CreateBetWizard modal */}
+      {/* Create Bet Wizard */}
+      <CreateBetWizard
+        isOpen={showCreateBet}
+        onClose={handleCloseBetWizard}
+        onSubmit={handleSubmitBet}
+      />
+
       {/* TODO: Add CreateTournamentWizard modal */}
     </div>
   );
