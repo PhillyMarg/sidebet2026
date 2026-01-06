@@ -35,11 +35,11 @@ export function FAB({ onCreateBet, onCreateTournament }: FABProps) {
         />
       )}
 
-      {/* FAB Container */}
-      <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 safe-bottom">
+      {/* FAB Container - positioned to sit in the bottom nav cutout */}
+      <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 safe-bottom">
         {/* Options */}
         {isOpen && (
-          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center">
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center">
             {/* Create Tournament */}
             <button
               onClick={handleCreateTournament}
@@ -64,19 +64,28 @@ export function FAB({ onCreateBet, onCreateTournament }: FABProps) {
           </div>
         )}
 
-        {/* Main FAB Button */}
+        {/* Main FAB Button - 64px diameter with orange gradient */}
         <button
           onClick={handleToggle}
-          className={`w-14 h-14 rounded-full flex items-center justify-center fab-shadow transition-all duration-200 ${
-            isOpen
-              ? "bg-sb-card border border-sb-border rotate-45"
-              : "bg-sb-orange hover:bg-orange-600"
-          }`}
+          className={`
+            w-16 h-16 rounded-full flex items-center justify-center
+            transition-all duration-200
+            ${
+              isOpen
+                ? "bg-sb-card border border-sb-border rotate-45"
+                : "bg-gradient-to-br from-sb-orange to-[#D9632D] hover:from-orange-500 hover:to-orange-700"
+            }
+          `}
+          style={{
+            boxShadow: isOpen
+              ? "none"
+              : "0 4px 20px rgba(255, 107, 53, 0.5), 0 0 30px rgba(255, 107, 53, 0.3)",
+          }}
         >
           {isOpen ? (
             <X size={28} className="text-white -rotate-45" />
           ) : (
-            <Plus size={28} className="text-white" />
+            <Plus size={32} className="text-white" strokeWidth={2.5} />
           )}
         </button>
       </div>
