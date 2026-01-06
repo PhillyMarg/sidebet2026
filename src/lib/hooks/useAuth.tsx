@@ -53,12 +53,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setFirebaseUser(fbUser);
 
       if (fbUser) {
-        // Fetch user data from Firestore
-        const userDoc = await getDoc(doc(db, "users", fbUser.uid));
-        if (userDoc.exists()) {
-          setUser({ uid: fbUser.uid, ...userDoc.data() } as User);
-        } else {
-          // User exists in auth but not in Firestore (phone auth case)
+        try {
+          // Force token refresh to ensure auth is fully propagated to Firestore
+          await fbUser.getIdToken(true);
+
+          // Fetch user data from Firestore
+          const userDoc = await getDoc(doc(db, "users", fbUser.uid));
+          if (userDoc.exists()) {
+            setUser({ uid: fbUser.uid, ...userDoc.data() } as User);
+          } else {
+            // User exists in auth but not in Firestore (phone auth or email-only signup)
+            // This is expected for users who haven't completed profile setup
+            console.log("[useAuth] User authenticated but no Firestore document yet:", fbUser.uid);
+            setUser(null);
+          }
+        } catch (error) {
+          console.error("[useAuth] Failed to fetch user data:", { uid: fbUser.uid, error });
+          // Don't block auth flow - user is still authenticated even if Firestore read fails
           setUser(null);
         }
       } else {
@@ -78,6 +89,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const fbUser = result.user;
+
+    // Force token refresh to ensure auth is ready for Firestore
+    await fbUser.getIdToken(true);
 
     // Check if user exists in Firestore, if not create profile
     const userDoc = await getDoc(doc(db, "users", fbUser.uid));
