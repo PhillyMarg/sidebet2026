@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Copy, Share2, Users } from "lucide-react";
+import { X } from "lucide-react";
 import { currentUser } from "@/lib/data/sampleFriends";
 
 type TabType = "SEARCH" | "INVITE" | "CONTACTS";
@@ -38,37 +38,41 @@ export function AddFriendModal({
   const tabs: TabType[] = ["SEARCH", "INVITE", "CONTACTS"];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60"
         onClick={onClose}
       />
 
-      {/* Modal Content */}
-      <div className="relative w-full max-w-md bg-sb-card rounded-t-2xl p-4 pb-8 animate-slide-up">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-white text-lg font-semibold">Add Friend</h2>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-sb-muted hover:text-white transition-colors"
-            aria-label="Close modal"
-          >
-            <X size={20} />
-          </button>
+      {/* Modal Content - Matches Figma exactly */}
+      <div className="relative w-full max-w-[320px] bg-sb-card border border-sb-orange rounded-[6px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] px-3 pt-3 pb-10">
+        {/* Close Button - Top Right */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-sb-muted hover:text-white transition-colors"
+          aria-label="Close modal"
+        >
+          <X size={16} />
+        </button>
+
+        {/* Title */}
+        <div className="flex items-center justify-center mb-4">
+          <h2 className="text-white text-[14px] font-semibold font-montserrat uppercase tracking-wide">
+            ADD FRIEND
+          </h2>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-sb-border mb-4">
+        {/* Tabs - Italic styling matching Figma */}
+        <div className="flex items-center justify-center gap-[52px] mb-4">
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
+              className={`text-[12px] italic font-montserrat transition-colors ${
                 activeTab === tab
-                  ? "text-sb-orange border-b-2 border-sb-orange"
-                  : "text-sb-muted hover:text-white"
+                  ? "text-sb-orange font-bold"
+                  : "text-white font-normal hover:text-sb-orange"
               }`}
             >
               {tab}
@@ -77,70 +81,71 @@ export function AddFriendModal({
         </div>
 
         {/* Tab Content */}
-        <div className="min-h-[200px]">
+        <div className="px-[3px]">
+          {/* SEARCH Tab */}
           {activeTab === "SEARCH" && (
-            <div className="flex flex-col gap-4">
-              <p className="text-sb-muted text-sm">
-                Enter a username to send a friend request.
-              </p>
-              <input
-                type="text"
-                value={searchUsername}
-                onChange={(e) => setSearchUsername(e.target.value)}
-                placeholder="Enter username..."
-                className="w-full h-12 px-4 bg-sb-black rounded-lg text-white text-sm placeholder:text-sb-muted border border-sb-border focus:border-sb-orange focus:outline-none transition-colors"
-              />
+            <div className="flex flex-col gap-2">
+              {/* Input Field */}
+              <div className="h-[22px] bg-transparent border border-[#58585A] rounded-[6px] flex items-center px-2">
+                <input
+                  type="text"
+                  value={searchUsername}
+                  onChange={(e) => setSearchUsername(e.target.value)}
+                  placeholder="Enter @Username"
+                  className="w-full bg-transparent text-white text-[12px] italic font-montserrat placeholder:text-white outline-none"
+                />
+              </div>
+
+              {/* Send Request Button */}
               <button
                 onClick={handleSendRequest}
                 disabled={!searchUsername.trim()}
-                className="w-full h-12 bg-sb-orange text-white font-semibold rounded-lg uppercase text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                className="h-[28px] bg-sb-orange text-white text-[10px] font-semibold font-montserrat uppercase rounded-[6px] hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Request
+                SEND REQUEST
               </button>
             </div>
           )}
 
+          {/* INVITE Tab */}
           {activeTab === "INVITE" && (
-            <div className="flex flex-col gap-4">
-              <p className="text-sb-muted text-sm">
-                Share your username with friends so they can add you.
-              </p>
-              <div className="bg-sb-black rounded-lg p-4 text-center">
-                <span className="text-sb-muted text-xs uppercase">Your Username</span>
-                <p className="text-sb-orange text-xl font-bold mt-1">
-                  @{currentUser.username}
+            <div className="flex flex-col gap-2">
+              {/* Username Display Box - Dashed border */}
+              <div className="h-[95px] border-2 border-dashed border-sb-orange rounded-[6px] flex flex-col items-center justify-center gap-1">
+                <span className="text-[#919191] text-[10px] italic font-montserrat">
+                  YOUR USERNAME
+                </span>
+                <p className="text-white text-[16px] font-extrabold italic font-montserrat tracking-[4px] uppercase">
+                  {currentUser.username}
                 </p>
               </div>
-              <div className="flex gap-3">
+
+              {/* Action Buttons */}
+              <div className="flex gap-[10px]">
                 <button
                   onClick={onCopyUsername}
-                  className="flex-1 h-12 flex items-center justify-center gap-2 bg-sb-border text-white font-semibold rounded-lg text-sm hover:bg-sb-card-hover transition-colors"
+                  className="flex-1 h-[28px] bg-transparent text-white text-[10px] font-semibold font-montserrat uppercase rounded-[6px] hover:bg-white/10 transition-colors"
                 >
-                  <Copy size={16} />
-                  Copy Username
+                  COPY USERNAME
                 </button>
                 <button
                   onClick={onShareUsername}
-                  className="flex-1 h-12 flex items-center justify-center gap-2 bg-sb-orange text-white font-semibold rounded-lg text-sm hover:opacity-90 transition-opacity"
+                  className="flex-1 h-[28px] bg-transparent text-white text-[10px] font-semibold font-montserrat uppercase rounded-[6px] hover:bg-white/10 transition-colors"
                 >
-                  <Share2 size={16} />
-                  Share
+                  SHARE USERNAME
                 </button>
               </div>
             </div>
           )}
 
+          {/* CONTACTS Tab */}
           {activeTab === "CONTACTS" && (
-            <div className="flex flex-col gap-4 items-center justify-center py-8">
-              <Users size={48} className="text-sb-muted" />
-              <p className="text-sb-muted text-sm text-center">
-                Sync your contacts to find friends already on SideBet.
-              </p>
+            <div className="flex flex-col">
               <button
                 onClick={onSyncContacts}
-                className="h-12 px-6 bg-sb-orange text-white font-semibold rounded-lg uppercase text-sm hover:opacity-90 transition-opacity"
+                className="h-[28px] bg-sb-orange text-white text-[10px] font-semibold font-montserrat uppercase rounded-[6px] hover:opacity-90 transition-opacity"
               >
-                Sync Contacts
+                SYNC CONTACTS
               </button>
             </div>
           )}

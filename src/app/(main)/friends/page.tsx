@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search, Plus } from "lucide-react";
+import { Search } from "lucide-react";
 import {
   FriendCard,
   PendingRequestCard,
@@ -158,33 +158,33 @@ export default function FriendsPage() {
     alert(message);
   };
 
-  // Empty state
+  // Empty state - Matches Figma "FRIENDS PAGE | EMPTY"
   if (!hasAnyFriends) {
     return (
-      <div className="px-4 py-4">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-white">Friends</h1>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-sb-orange text-white text-xs font-semibold uppercase rounded-full hover:opacity-90 transition-opacity"
-          >
-            <Plus size={14} />
-            Add Friend
-          </button>
+      <div className="px-[18px] pt-[66px]">
+        {/* Add Friend Button - Full width orange */}
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="w-full h-[28px] bg-sb-orange text-white text-[10px] font-semibold font-montserrat uppercase rounded-[6px] hover:opacity-90 transition-opacity mb-4"
+        >
+          + ADD FRIEND
+        </button>
+
+        {/* Search Bar */}
+        <div className="flex items-center justify-center px-6 py-2 mb-8">
+          <div className="bg-[#2B2B2F] h-[24px] rounded-[6px] px-3 py-2 flex items-center gap-2 w-full">
+            <Search size={12} className="text-[#B3B3B3]" />
+            <span className="text-[#B3B3B3] text-[12px] font-semibold font-montserrat">
+              Search Friends...
+            </span>
+          </div>
         </div>
 
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className="text-6xl mb-4">🤝</div>
-          <h2 className="text-xl font-bold text-white mb-2">No Friends Yet</h2>
-          <p className="text-sb-muted text-center mb-6">
-            Add friends to challenge them to head-to-head bets.
+        {/* Empty State Message */}
+        <div className="flex flex-col items-center justify-center py-40">
+          <p className="text-white text-[14px] font-light italic font-montserrat">
+            No Friends Yet? Let&apos;s Change That!
           </p>
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-6 py-3 bg-sb-orange text-white font-semibold rounded-lg hover:bg-orange-600 transition-colors"
-          >
-            Add Friend
-          </button>
         </div>
 
         <AddFriendModal
@@ -199,41 +199,37 @@ export default function FriendsPage() {
     );
   }
 
+  // Filled state - Matches Figma "FRIENDS PAGE | FILLED"
   return (
-    <div className="px-4 py-4">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-bold text-white">Friends</h1>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-sb-orange text-white text-xs font-semibold uppercase rounded-full hover:opacity-90 transition-opacity"
-        >
-          <Plus size={14} />
-          Add Friend
-        </button>
-      </div>
+    <div className="px-[18px] pt-[66px]">
+      {/* Add Friend Button - Full width orange */}
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="w-full h-[28px] bg-sb-orange text-white text-[10px] font-semibold font-montserrat uppercase rounded-[6px] hover:opacity-90 transition-opacity mb-4"
+      >
+        + ADD FRIEND
+      </button>
 
       {/* Search Bar */}
-      <div className="relative mb-4">
-        <Search
-          size={18}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B3B3B3]"
-        />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search friends..."
-          className="w-full h-10 pl-10 pr-4 bg-[#2B2B2F] rounded-[6px] text-[12px] text-white placeholder:text-[#B3B3B3] border-none outline-none focus:ring-1 focus:ring-sb-orange/50"
-        />
+      <div className="flex items-center justify-center px-6 py-2 mb-4">
+        <div className="bg-[#2B2B2F] h-[24px] rounded-[6px] px-3 py-2 flex items-center gap-2 w-full">
+          <Search size={12} className="text-[#B3B3B3]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search Friends..."
+            className="bg-transparent text-white text-[12px] font-semibold font-montserrat placeholder:text-[#B3B3B3] outline-none flex-1"
+          />
+        </div>
       </div>
 
       {/* Sections */}
-      <div className="pb-24">
+      <div className="pb-24 px-[6px]">
         {/* Pending Requests */}
         {filteredFriends.pendingRequests.length > 0 && (
           <FriendSection
-            title="Pending Requests"
+            title="PENDING REQUESTS"
             count={filteredFriends.pendingRequests.length}
             defaultExpanded={true}
           >
@@ -252,7 +248,7 @@ export default function FriendsPage() {
         {/* My Friends */}
         {filteredFriends.myFriends.length > 0 && (
           <FriendSection
-            title="My Friends"
+            title="MY FRIENDS"
             count={filteredFriends.myFriends.length}
             defaultExpanded={true}
           >
@@ -271,7 +267,7 @@ export default function FriendsPage() {
         {/* Suggested */}
         {filteredFriends.suggested.length > 0 && (
           <FriendSection
-            title="Suggested"
+            title="SUGGESTED"
             count={filteredFriends.suggested.length}
             defaultExpanded={true}
           >
@@ -290,7 +286,7 @@ export default function FriendsPage() {
         {/* Sent Requests */}
         {filteredFriends.sentRequests.length > 0 && (
           <FriendSection
-            title="Sent Requests"
+            title="SENT REQUESTS"
             count={filteredFriends.sentRequests.length}
             defaultExpanded={true}
           >

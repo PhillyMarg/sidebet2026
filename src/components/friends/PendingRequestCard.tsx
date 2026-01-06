@@ -16,25 +16,37 @@ export function PendingRequestCard({
   onDecline,
 }: PendingRequestCardProps) {
   return (
-    <div className="flex items-center justify-between p-3 bg-sb-card rounded-lg">
-      <div className="flex flex-col">
-        <span className="text-white font-semibold text-sm">{name}</span>
-        <span className="text-sb-orange text-xs">@{username}</span>
+    <div className="h-[36px] bg-[rgba(24,24,27,0.4)] rounded-[6px] px-3 flex items-center">
+      <div className="flex items-center gap-2 flex-1 overflow-hidden">
+        {/* Name */}
+        <span className="text-white text-[12px] font-semibold font-montserrat whitespace-nowrap">
+          {name}
+        </span>
+
+        {/* Username */}
+        <span className="text-sb-orange text-[10px] font-semibold font-montserrat whitespace-nowrap">
+          @{username}
+        </span>
       </div>
-      <div className="flex items-center gap-2">
+
+      {/* Action Icons */}
+      <div className="flex items-center gap-5">
+        {/* Accept - Green Check */}
         <button
           onClick={onAccept}
-          className="w-8 h-8 flex items-center justify-center bg-sb-green rounded-full hover:opacity-90 transition-opacity"
+          className="flex items-center justify-center hover:opacity-80 transition-opacity"
           aria-label="Accept friend request"
         >
-          <Check size={16} className="text-white" />
+          <Check size={16} className="text-[#00FF11]" strokeWidth={2.5} />
         </button>
+
+        {/* Decline - Red X */}
         <button
           onClick={onDecline}
-          className="w-8 h-8 flex items-center justify-center bg-sb-red rounded-full hover:opacity-90 transition-opacity"
+          className="flex items-center justify-center hover:opacity-80 transition-opacity"
           aria-label="Decline friend request"
         >
-          <X size={16} className="text-white" />
+          <X size={8} className="text-sb-red" strokeWidth={3} />
         </button>
       </div>
     </div>
