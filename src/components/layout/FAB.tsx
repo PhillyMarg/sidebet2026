@@ -1,119 +1,132 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, X, Trophy, DollarSign } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Home, Users, UserPlus, DollarSign, Plus } from "lucide-react";
 
-interface FABProps {
-  onCreateBet: () => void;
-  onCreateTournament: () => void;
-}
+const navItems = [
+  { href: "/home", icon: Home, label: "Home" },
+  { href: "/groups", icon: Users, label: "Groups" },
+  { href: "/friends", icon: UserPlus, label: "Friends" },
+  { href: "/settle", icon: DollarSign, label: "Settle" },
+];
 
-export function FAB({ onCreateBet, onCreateTournament }: FABProps) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleCreateBet = () => {
-    setIsOpen(false);
-    onCreateBet();
-  };
-
-  const handleCreateTournament = () => {
-    setIsOpen(false);
-    onCreateTournament();
-  };
+export function BottomNav() {
+  const pathname = usePathname();
 
   return (
     <>
-      {/* Backdrop */}
-      {isOpen && (
+      {/* FAB Button - Positioned above nav */}
+      <Link
+        href="/create"
+        className="fixed bottom-[44px] left-1/2 -translate-x-1/2 z-50 flex items-center justify-center"
+      >
+        {/* Outer gradient ring */}
         <div
-          className="fixed inset-0 bg-black/60 z-40 transition-opacity"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
-
-      {/* FAB Container - positioned to float above the bottom nav */}
-      {/* Nav is 80px, FAB outer is 82px, so FAB should sit with bottom ~20px into nav */}
-      <div className="fixed bottom-[52px] left-1/2 -translate-x-1/2 z-50">
-        {/* Options */}
-        {isOpen && (
-          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex flex-col gap-3 items-center">
-            {/* Create Tournament */}
-            <button
-              onClick={handleCreateTournament}
-              className="flex items-center gap-3 bg-sb-card border border-sb-border rounded-full pl-4 pr-5 py-3 hover:bg-sb-card-hover transition-colors"
-            >
-              <div className="w-10 h-10 rounded-full bg-sb-purple flex items-center justify-center">
-                <Trophy size={20} className="text-white" />
-              </div>
-              <span className="text-white font-semibold whitespace-nowrap">Tournament</span>
-            </button>
-
-            {/* Create Bet */}
-            <button
-              onClick={handleCreateBet}
-              className="flex items-center gap-3 bg-sb-card border border-sb-border rounded-full pl-4 pr-5 py-3 hover:bg-sb-card-hover transition-colors"
-            >
-              <div className="w-10 h-10 rounded-full bg-sb-orange flex items-center justify-center">
-                <DollarSign size={20} className="text-white" />
-              </div>
-              <span className="text-white font-semibold whitespace-nowrap">Create Bet</span>
-            </button>
-          </div>
-        )}
-
-        {/* Main FAB Button with gradient ring */}
-        {/* Outer ring: 82px diameter with gradient border (orange to cream) */}
-        {/* Inner circle: 64px diameter with solid gradient */}
-        <button
-          onClick={handleToggle}
-          className="relative flex items-center justify-center"
+          className="w-[64px] h-[64px] rounded-full flex items-center justify-center"
           style={{
-            width: "82px",
-            height: "82px",
+            background: "linear-gradient(135deg, #FF6B35 0%, #E8D5B7 50%, #D4A574 100%)",
           }}
         >
-          {/* Outer gradient ring - 82px */}
+          {/* Inner circle */}
           <div
-            className={`absolute inset-0 rounded-full transition-opacity duration-200 ${
-              isOpen ? "opacity-0" : "opacity-100"
-            }`}
+            className="w-[54px] h-[54px] rounded-full flex items-center justify-center"
             style={{
-              background: "linear-gradient(135deg, #FF6B35 0%, #D4A574 50%, #C9A87C 100%)",
-              boxShadow: "0 4px 20px rgba(255, 107, 53, 0.5), 0 0 30px rgba(255, 107, 53, 0.3)",
+              background: "linear-gradient(135deg, #E8D5B7 0%, #D4A574 50%, #C49A6C 100%)",
             }}
-          />
-
-          {/* Inner circle - 64px */}
-          <div
-            className={`
-              relative w-16 h-16 rounded-full flex items-center justify-center
-              transition-all duration-200
-              ${
-                isOpen
-                  ? "bg-sb-card border border-sb-border"
-                  : ""
-              }
-            `}
-            style={
-              !isOpen
-                ? {
-                    background: "linear-gradient(135deg, #FF6B35 0%, #D9632D 100%)",
-                  }
-                : undefined
-            }
           >
-            {isOpen ? (
-              <X size={28} className="text-white" />
-            ) : (
-              <Plus size={32} className="text-white" strokeWidth={2.5} />
-            )}
+            <Plus size={28} className="text-sb-orange" strokeWidth={2.5} />
           </div>
-        </button>
-      </div>
+        </div>
+      </Link>
+
+      {/* Bottom Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40 h-[80px]">
+        {/* SVG background with curved cutout */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 393 80"
+          preserveAspectRatio="none"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            {/* Gradient matching the page background */}
+            <linearGradient id="navBgGradient" x1="0%" y1="0%" x2="50%" y2="100%">
+              <stop offset="0%" stopColor="#2D2520" />
+              <stop offset="50%" stopColor="#3D2D25" />
+              <stop offset="100%" stopColor="#5C3D2E" />
+            </linearGradient>
+          </defs>
+          {/* Path with semi-circle notch in center */}
+          <path
+            d="M0 0 
+               L156 0 
+               C156 0 156 0 160 4
+               A36 36 0 0 0 233 4
+               C237 0 237 0 237 0
+               L393 0 
+               L393 80 
+               L0 80 
+               Z"
+            fill="url(#navBgGradient)"
+          />
+        </svg>
+
+        {/* Navigation content */}
+        <div className="relative flex h-full">
+          {/* Left side - Home and Groups */}
+          <div className="flex-1 flex items-center justify-around pt-2">
+            {navItems.slice(0, 2).map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex flex-col items-center gap-1 transition-colors ${
+                    isActive ? "text-sb-orange" : "text-white hover:text-sb-orange"
+                  }`}
+                >
+                  <item.icon size={24} strokeWidth={isActive ? 2.5 : 1.5} />
+                  <span
+                    className="text-[8px] font-semibold font-montserrat uppercase"
+                    style={{ textShadow: "0px 4px 4px rgba(0,0,0,0.25)" }}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Center spacer for FAB */}
+          <div className="w-[80px]" />
+
+          {/* Right side - Friends and Settle */}
+          <div className="flex-1 flex items-center justify-around pt-2">
+            {navItems.slice(2).map((item) => {
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex flex-col items-center gap-1 transition-colors ${
+                    isActive ? "text-sb-orange" : "text-white hover:text-sb-orange"
+                  }`}
+                >
+                  <item.icon size={24} strokeWidth={isActive ? 2.5 : 1.5} />
+                  <span
+                    className="text-[8px] font-semibold font-montserrat uppercase"
+                    style={{ textShadow: "0px 4px 4px rgba(0,0,0,0.25)" }}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </nav>
     </>
   );
 }
