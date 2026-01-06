@@ -1,0 +1,190 @@
+import { BetData } from '@/components/bet/BetCard';
+
+// Helper to create a date string in MM/DD/YYYY format
+const formatDate = (date: Date): string => {
+  return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+};
+
+// Create a date 2 hours from now for urgent bet
+const urgentDate = new Date(Date.now() + 2 * 60 * 60 * 1000);
+
+// Extended BetData with optional closingTime for urgent filtering
+export interface SampleBetData extends BetData {
+  closingTime?: string;
+}
+
+export const sampleBets: SampleBetData[] = [
+  // H2H Yes/No - Open, not voted
+  {
+    id: '1',
+    type: 'YES_NO',
+    category: 'H2H',
+    title: 'Will TG Beat Phil in 8Ball Pool?',
+    description: 'Best of 3 games at the party tonight',
+    challenger: 'Phil Margevicius',
+    challenged: 'Joe Smith',
+    wager: 5,
+    totalPot: 40,
+    closingDate: '12/15/2025',
+    yesPercentage: 50,
+    noPercentage: 50,
+    status: 'OPEN',
+  },
+  // H2H Over/Under - Voted
+  {
+    id: '2',
+    type: 'OVER_UNDER',
+    category: 'H2H',
+    title: 'How many beers will Jake drink?',
+    description: 'Count starts at 8pm',
+    challenger: 'Phil Margevicius',
+    challenged: 'Joe Smith',
+    line: 52.5,
+    wager: 5,
+    totalPot: 40,
+    closingDate: '12/15/2025',
+    yesPercentage: 50,
+    noPercentage: 50,
+    userPick: 'OVER',
+    potentialPayout: 10,
+    status: 'OPEN',
+  },
+  // H2H - Pending
+  {
+    id: '3',
+    type: 'YES_NO',
+    category: 'H2H',
+    title: 'Will Sarah make the flip cup shot?',
+    challenger: 'Phil Margevicius',
+    challenged: 'Joe Smith',
+    wager: 10,
+    totalPot: 40,
+    closingDate: '12/20/2025',
+    yesPercentage: 0,
+    noPercentage: 0,
+    status: 'PENDING',
+  },
+  // H2H - Won
+  {
+    id: '4',
+    type: 'YES_NO',
+    category: 'H2H',
+    title: 'Cornhole tournament winner prediction',
+    challenger: 'Phil Margevicius',
+    challenged: 'Joe Smith',
+    wager: 20,
+    totalPot: 40,
+    closingDate: '12/01/2025',
+    yesPercentage: 50,
+    noPercentage: 50,
+    userPick: 'YES',
+    potentialPayout: 40,
+    status: 'WON',
+  },
+  // H2H - Lost
+  {
+    id: '5',
+    type: 'OVER_UNDER',
+    category: 'H2H',
+    title: 'Total points in the game',
+    challenger: 'Phil Margevicius',
+    challenged: 'Joe Smith',
+    line: 45.5,
+    wager: 15,
+    totalPot: 30,
+    closingDate: '12/01/2025',
+    yesPercentage: 60,
+    noPercentage: 40,
+    userPick: 'UNDER',
+    status: 'LOST',
+  },
+  // Group Yes/No - Open
+  {
+    id: '6',
+    type: 'YES_NO',
+    category: 'GROUP',
+    title: 'Will TG Beat Phil in 8Ball Pool?',
+    description: 'Tournament finals',
+    groupName: 'Test Group 1',
+    creatorName: 'Phil Margevicius',
+    playerCount: 8,
+    wager: 5,
+    totalPot: 40,
+    closingDate: '12/15/2025',
+    yesPercentage: 70,
+    noPercentage: 30,
+    status: 'OPEN',
+  },
+  // Group Over/Under - Voted
+  {
+    id: '7',
+    type: 'OVER_UNDER',
+    category: 'GROUP',
+    title: 'How many wings will be eaten?',
+    description: 'Super Bowl party wing count',
+    groupName: 'Test Group 1',
+    creatorName: 'Phil Margevicius',
+    playerCount: 8,
+    line: 52.5,
+    wager: 5,
+    totalPot: 40,
+    closingDate: '12/15/2025',
+    yesPercentage: 70,
+    noPercentage: 30,
+    userPick: 'OVER',
+    potentialPayout: 10,
+    status: 'OPEN',
+  },
+  // Group - Won
+  {
+    id: '8',
+    type: 'YES_NO',
+    category: 'GROUP',
+    title: 'Will the Buckeyes win?',
+    groupName: 'Test Group 1',
+    creatorName: 'Phil Margevicius',
+    playerCount: 8,
+    wager: 10,
+    totalPot: 80,
+    closingDate: '11/25/2025',
+    yesPercentage: 70,
+    noPercentage: 30,
+    userPick: 'YES',
+    potentialPayout: 20,
+    status: 'WON',
+  },
+  // Group - Judge (creator view)
+  {
+    id: '9',
+    type: 'YES_NO',
+    category: 'GROUP',
+    title: 'Did Mike finish the challenge?',
+    description: 'The hot wing challenge',
+    groupName: 'Test Group 1',
+    creatorName: 'Phil Margevicius',
+    playerCount: 8,
+    wager: 5,
+    totalPot: 40,
+    closingDate: '12/10/2025',
+    yesPercentage: 60,
+    noPercentage: 40,
+    status: 'JUDGE',
+  },
+  // Urgent bet (closing soon)
+  {
+    id: '10',
+    type: 'YES_NO',
+    category: 'GROUP',
+    title: 'Will it snow tonight?',
+    groupName: 'Test Group 1',
+    creatorName: 'Phil Margevicius',
+    playerCount: 5,
+    wager: 5,
+    totalPot: 25,
+    closingDate: formatDate(urgentDate),
+    closingTime: urgentDate.toISOString(),
+    yesPercentage: 40,
+    noPercentage: 60,
+    status: 'OPEN',
+  },
+];
