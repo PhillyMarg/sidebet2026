@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -10,26 +10,46 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { signIn, signInWithGoogle } = useAuth();
+  const { user, loading: authLoading, signIn, signInWithGoogle } = useAuth();
   const router = useRouter();
+
+  // Redirect if already logged in (or after successful login)
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.push("/home");
+    }
+  }, [user, authLoading, router]);
+
+  // Show loading state while auth is initializing or redirecting
+  if (authLoading || user) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{
+          background: "linear-gradient(204deg, rgb(24, 24, 27) 0%, rgb(30, 30, 30) 50%, rgb(215, 99, 45) 100%)"
+        }}
+      >
+        <div className="text-white text-xl font-semibold">Loading...</div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       await signIn(email, password);
-      router.push("/home");
+      // Don't redirect here - the useEffect above will handle it after auth state updates
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Invalid email or password";
       setError(errorMessage);
-    } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -39,7 +59,7 @@ export default function SignInPage() {
 
     try {
       await signInWithGoogle();
-      router.push("/home");
+      // Don't redirect here - the useEffect above will handle it after auth state updates
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Failed to sign in with Google";
       // Handle specific Firebase errors
@@ -50,7 +70,6 @@ export default function SignInPage() {
       } else {
         setError(errorMessage);
       }
-    } finally {
       setGoogleLoading(false);
     }
   };
@@ -128,11 +147,11 @@ export default function SignInPage() {
           {/* Sign In Button */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             className="w-full py-3 bg-[#FF6B35] text-white font-semibold rounded-[6px] hover:bg-[#e55f2f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {loading ? "Signing in..." : "Sign In"}
-            {!loading && <ArrowRight size={18} />}
+            {isLoading ? "Signing in..." : "Sign In"}
+            {!isLoading && <ArrowRight size={18} />}
           </button>
         </form>
 
@@ -149,7 +168,7 @@ export default function SignInPage() {
           <button
             type="button"
             onClick={handleGoogleSignIn}
-            disabled={googleLoading || loading}
+            disabled={googleLoading || isLoading}
             className="w-full py-3 bg-white text-gray-800 font-medium rounded-[6px] hover:bg-gray-100 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {googleLoading ? (
@@ -169,7 +188,7 @@ export default function SignInPage() {
           <button
             type="button"
             onClick={handleAppleSignIn}
-            disabled={googleLoading || loading}
+            disabled={googleLoading || isLoading}
             className="w-full py-3 bg-[#18181B] text-white font-medium rounded-[6px] hover:bg-[#27272A] transition-colors flex items-center justify-center gap-3 border border-[#27272A] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
